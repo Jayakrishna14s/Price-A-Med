@@ -1,0 +1,103 @@
+services:
+  kafka:
+    image: apache/kafka-native
+    ports:
+      - "9092:9092"
+    environment:
+      # Configure listeners for both docker and host communication
+      KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
+
+      # Settings required for KRaft mode
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
+
+      # Listener to use for broker-to-broker communication
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+
+      # Required for a single node cluster
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafka-ui:
+    image: ghcr.io/kafbat/kafka-ui:latest
+    ports:
+      - 8082:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: "true"
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9093
+    depends_on:
+      - kafka
+
+  
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+  
+  redis-insight:
+    image: redis/redisinsight:latest
+    ports:
+      - '5540:5540'
+
+
+  frontend:
+    build: ./frontend
+    ports:
+      - '5173:5173'
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      VITE_BACKEND: http://localhost:8080
+      VITE_BACKEND_URL: http://localhost:8080
+    volumes:
+      - /app/node_modules
+      - ./frontend:/app
+
+
+  backend-producer:
+    build: ./backend-producer
+    ports:
+      - 8080:8080
+    volumes:
+      - ./backend-producer:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/evernorth?autoReconnect=true
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=root
+
+  backend-consumer:
+    build: ./backend-consumer
+    ports:
+      - 8081:8080
+    volumes:
+      - ./backend-consumer:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/evernorth?autoReconnect=true
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=root
+  
+  db:
+    image: mysql:8.0
+    container_name: db
+    volumes:
+      # - ./mysql/init/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - my-db-volume:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=evernorth
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=root
+    ports:
+      - 3306:3306
+  
+volumes:
+  my-db-volume:

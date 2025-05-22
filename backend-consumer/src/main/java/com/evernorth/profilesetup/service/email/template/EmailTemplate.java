@@ -1,0 +1,30 @@
+package com.evernorth.profilesetup.service.email.template;
+
+public class EmailTemplate {
+    public static String getSubscribeTemplate(String memberID, String signupLink) {
+        return "<html>" +
+                "    <body style=\"  font-family: Cambria\">" +
+                "    <div style=\" padding: 10px;  width: 450px;  background-color: #fff; box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.25); border-radius: 10px; border: #035c67 solid 2px\">" +
+                "        <div style=\"display: flex; gap: 5px ; align-items: center; background-color: #f1f5f9; border-bottom: black solid ; \">" +
+                "            <img style=\"height: 50px\" src=\"https://res.cloudinary.com/dkezdazmt/image/upload/Evernorth/evernorth_logo\" />" +
+                "            <div style=\"height: 50px; \">" +
+                "                <h2 style= \"margin: 0 0 0 5px; padding: 0\">Evernorth Health Services</h2>" +
+                "                <p style=\"padding-left: 0; margin: 0 0 0 5px\">Welcome to our services!</p>" +
+                "            </div>" +
+                "        </div>" +
+                "        <div style=\"margin: 15px 0 5px 0; padding: 0 5px\">" +
+                "            <p>Thank you for subscribing to our health services. We are pleased to have you on board!</p>" +
+                "            <p>Your subscription has been successfully processed.</p>" +
+                "            <p style=\"margin-top: 5px; \">MEMBERSHIP ID :</p>" +
+                "        </div>" +
+                "        <h1 style=\"margin: 0; padding: 0 5px\">" + memberID + "</h1>" +
+                "        <div style=\"padding: 0 5px\">" +
+                "            <p style=\"margin-bottom: 0\">You can now set up your profile at Evernorth to make the most of the services we provide.</p>" +
+                "            <a style=\"text-decoration: underline; color: deepskyblue\" href=\"http://localhost:5173/signup\" target=\"_blank\"> Click to signup </a>" +
+                "            <p style=\"margin-top: 20px; color: #035c67\"> - Evernorth Health Services</p>" +
+                "        </div>" +
+                "    </div>" +
+                "    </body>" +
+                "</html>";
+    }
+}

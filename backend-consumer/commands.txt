@@ -1,0 +1,10 @@
+# Run the spring boot
+mvn spring-boot:run
+
+
+# Update Dependencies
+mvn dependency:resolve
+
+
+# Sync Dependencies
+mvn clean install
